@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Career Prediction Test</title>
+</head>
+<body>
+    <h2>Enter Your Test Scores</h2>
+    <form id="testForm">
+        <div id="inputs">
+            <script>
+                for (let i = 0; i < 10; i++) {
+                    document.write(`<label>Feature ${i + 1}: <input type="number" step="any" required></label><br>`);
+                }
+            </script>
+        </div>
+        <br>
+        <button type="submit">Predict Career</button>
+    </form>
+
+    <h3 id="result"></h3>
+
+    <script>
+        const form = document.getElementById('testForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const inputs = document.querySelectorAll('#inputs input');
+            const features = Array.from(inputs).map(input => parseFloat(input.value));
+
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ features })
+            });
+
+            const data = await response.json();
+            const result = document.getElementById('result');
+
+            if (data.top_3_careers) {
+                result.innerHTML = "<b>Top 3 Career Matches:</b><br>" +
+                    data.top_3_careers.map(c => `${c.career}: ${c.confidence}`).join("<br>");
+            } else {
+                result.innerText = "Error: " + data.error;
+            }
+        });
+    </script>
+</body>
+</html>
